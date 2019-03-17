@@ -1,0 +1,376 @@
+
+
+//Shreyas Raj Singh sxs170100 CS 1337.007 Homework 5
+#include <iostream>
+
+using namespace std;
+
+//create the node class
+class Node{
+    public:
+        int data;
+        Node *next;
+};
+
+//print function to display values
+void PrintList(Node *n){
+
+    //make sure that the list isn't empty
+    //or that we haven't reached the end of the list
+    if(n != nullptr){
+        //print out the data
+        cout << n->data << " ";
+        //move to the next node
+        n = n->next;
+        //call the function again
+        PrintList(n);
+    }
+    //otherwise if the list is empty or we've reached the end then
+    //return back
+    else{
+        return;
+    }
+}
+
+//function to add the value to the end of the list
+void EnQueue(int val, Node *&head){
+
+    //create new node to save the last value
+    Node *last = new Node;
+    //put the data in the node and make the node point to null
+    last->data = val;
+    last->next = nullptr;
+
+    //if the list is empty then assign last to the head
+    if (head == nullptr) {
+        head = last;
+    }
+    //otherwise...
+    else {
+        //create temp node to store the value
+        Node *temp = head;
+
+        //reach the end of the list
+        while (temp->next != nullptr) {
+            temp = temp->next;
+        }
+
+        //assign the temp node to last
+        temp->next = last;
+
+    }
+
+    //print out the values
+    cout << "The List is : ";
+    PrintList(head);
+    cout << endl;
+
+}
+
+//function to remove the value from the beginning of the list
+ void DeQueue(Node *&head){
+
+    //if the list is empty return back
+    if (head == nullptr)
+        return;
+
+    //Move the head pointer to the next node
+    Node *temp = head;
+    head = head->next;
+
+    //display the deleted value
+    cout << "the deleted value is " << temp->data << endl;
+
+    //print out the list
+    cout << "The List is : ";
+    PrintList(head);
+    cout << endl;
+
+    //delete temp node
+    delete temp;
+}
+
+int main() {
+
+    //create the nodes
+    Node *head = nullptr;
+    Node *second = nullptr;
+    Node *third = nullptr;
+
+
+    head = new Node();
+    second = new Node();
+    third = new Node();
+
+    //create the initial list
+    head->data = 1;
+    head->next = second;
+
+    second->data = 2;
+    second->next = third;
+
+    third->data = 3;
+    third->next = nullptr;
+
+
+    //call the values!
+    EnQueue(4,head);
+
+    DeQueue(head);
+
+    DeQueue(head);
+
+    EnQueue(6,head);
+
+    return 0;
+}
+
+//shreyas raj singh sxs170100
+//Marin Budic mxb170005
+#include <iostream>
+using namespace std;
+
+struct node
+{
+    int num;
+    node *next;
+};
+
+void addNode(node *&);
+void deleteNode(node *&, int);
+void printList(node *);
+int search(node *&, int);
+void insert(node *&, int, int);
+void remove(node *&, int);
+
+int main()
+{
+    int menu;
+    node *head = nullptr;
+
+    do
+    {
+        cout << "1. Add Node\n"
+             << "2. Delete Node\n"
+             << "3. Print List\n"
+             << "4. Quit\n"
+             << "5. Search\n"
+             << "6. Insert\n"
+             << "7. Remove\n"
+             << "Please pick an operation for the linked list: ";
+        cin >> menu;
+
+        if (menu == 1)
+            addNode(head);
+        else if (menu == 2)
+        {
+            int num2del;
+            cout << "What number would you like to delete";
+            cin >> num2del;
+            deleteNode(head, num2del);
+        }
+        else if (menu == 3)
+            printList(head);
+        else if(menu == 5){
+            int num;
+            cout << "enter the num you want searched: ";
+            cin >> num;
+            int pos = search(head, num);
+            if(pos != -1){
+                cout << num << " was found at position " << pos << endl;
+            }
+            else{
+                cout << "Num was not found" << endl;
+            }
+        }
+        else if(menu == 6){
+            int num, pos;
+            cout << " enter the num you want to enter: " ;
+            cin >> num; cout << endl;
+            cout << "enter the position you want to enter it at : " ;
+            cin >> pos; cout << endl;
+
+            insert(head, num, pos);
+        }
+        else if(menu == 7){
+            int pos;
+            cout << "enter the position of the node you want removed: ";
+            cin >> pos;
+            remove(head, pos);
+        }
+
+    } while (menu != 4);
+
+}
+
+
+void printList(node *head)
+{
+    node *ptr = head;
+    while (ptr != nullptr)
+    {
+        cout << ptr->num << " ";
+        ptr = ptr->next;
+    }
+    cout << endl;
+}
+void addNode(node *&head)
+{
+    node *A = new node, *ptr = head;
+
+    cout << "Enter the value for the node: ";
+    cin >> A->num;
+    A->next = nullptr;
+
+    ptr = head;
+    if (head == nullptr)
+    {
+        head = A;
+        return;
+    }
+    else if (A->num < head->num)
+    {
+        A->next = head;
+        head = A;
+        return;
+    }
+    else
+    {
+        while (ptr->next != nullptr)
+        {
+            if (ptr->next->num > A->num)
+            {
+                A->next = ptr->next;
+                ptr->next = A;
+                return;
+            }
+            ptr = ptr->next;
+        }
+    }
+
+    //if (ptr->next == nullptr)
+    ptr->next = A;
+}
+
+void deleteNode(node *&head, int del)
+{
+    node *ptr = head;
+
+    if (head == nullptr)
+    {
+        cout << "Nothing to delete";
+        return;
+    }
+    else if (del == head->num)
+    {
+        head = head->next;
+        ptr->next = nullptr;
+        delete ptr;
+        return;
+    }
+    else
+    {
+        while (ptr->next != nullptr)
+        {
+            if (ptr->next->num == del)
+            {
+                node *hold = ptr->next;
+                ptr->next = ptr->next->next;
+                hold->next = nullptr;
+                delete hold;
+                return;
+            }
+            ptr = ptr->next;
+        }
+
+    }
+    cout << "Number is not in list";
+}
+
+int search(node *&head, int num){
+
+    node *temp = head;
+
+    int pos = 0;
+
+    //loop until you find the pos of the num
+    while(temp != nullptr ){
+        if(temp->num == num){
+            return pos;
+        }
+        pos++;
+        temp = temp->next;
+    }
+
+    return -1;
+}
+
+void insert(node *&head, int num, int pos){
+    //make a pointer to point at the beginning of the linked list
+    node* temp;
+    temp = head;
+
+    //make a node to store the value to insert
+    node* val = new node;
+    val->num = num;
+
+    if(temp == nullptr && pos == 0){
+        temp->num = num;
+        return;
+    }
+    else if(pos == 0){
+        val->next = temp;
+        head = val;
+        return;
+    }
+
+    //loop to move the pointer
+    for(int i = 0; i < pos-1; i++)
+    {
+        temp = temp->next;
+    }
+
+    val->next = temp->next;
+    temp->next = val;
+
+}
+
+void remove(node *&head, int pos){
+    //make two pointers
+    node *curr = head;
+    node *prev = head;
+
+    //if the position is the first element then...
+    if(pos == 0){
+        //assign the head to the next element
+        head = head->next;
+        //disconnect the node
+        curr->next = nullptr;
+        //delete the node
+        delete curr;
+        //end the function
+        return;
+    }
+
+    //loop until the the curr pointer is at the desired pos
+    for(int i = 0; i < pos; i++){
+        //move curr
+        curr = curr->next;
+        //except the first iteration...
+        if(i != 0){
+            //move the prev pointer
+            prev = prev->next;
+        }
+    }
+
+    //make prev point to the node after curr
+    prev->next = curr->next;
+    //if curr isn't the last element
+    if(curr->next != nullptr){
+        //disconnect the node from the list
+        curr->next = nullptr;
+    }
+
+    //delete the curr node
+    delete curr;
+}
