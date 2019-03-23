@@ -17,29 +17,38 @@ struct node{
 
 //function to create the grid on which the user will draw
 void createGrid(node *&);
-//function to take in input and process comands respectively
-void Input(fstream &);
+
 //function to print the grid!
 void printGrid(node *);
 //function to delete the grid
 void deleteGrid(node *);
+//function to take in input and process commands respectively
+void Input(fstream &, node *);
+//function to make changes to the output file
+void OutputTranslate(fstream &, node *);
 //function to draw north
-void NorthDraw(node *, bool, bool, bool, int);
+void NorthDraw(node *&, bool, bool, int);
+//function to draw north
+void SouthDraw(node *&, bool, bool, int);
+//function to draw east
+void EastDraw(node *&, bool, bool, int);
+//function to draw east
+void WestDraw(node *&, bool, bool, int);
+
 
 int main(){
 
     //create a file input object
     fstream inputFile;
 
-    Input(inputFile);
-
     //create the head pointer and assign it to nullptr
     node *head = new node;
 
-
+    //create the grid
     createGrid(head);
 
-    printGrid(head);
+    //take in input
+    Input(inputFile, head);
 
     return 0;
 
@@ -53,6 +62,7 @@ void createGrid(node *&head){
     //Create the first row of 50 nodes
     //loop 49 times since the first node is already there
     for(int i = 0; i < 50; i++){
+        temp->symbol = ' ';
         //create a new node
         node *newNode = new node;
         newNode->right = nullptr;
@@ -73,6 +83,7 @@ void createGrid(node *&head){
         node *temp2 = newNode1;
         //and the columns on each row
             for(int i = 0; i < 50 ; i++){
+                temp2->symbol = ' ';
                 //create new node
                 node *newNode2 = new node;
                 //link the nodes to the appropriate places
@@ -114,6 +125,7 @@ void printGrid(node *head){
         }
         //and a newline
         cout << endl;
+        cout << endl;
     }
 
 }
@@ -122,9 +134,14 @@ void deleteGrid(node *head){
 
 }
 
-void Input(fstream &inputFile){
+void Input(fstream &inputFile, node *head){
+    //Assign a temp pointer to the head node
+    node *temp = head;
     //open the command file
     inputFile.open("commands.txt");
+
+    //create output fstream object
+    fstream outputFile;
 
     //check for the proper opening of the file
     if(!inputFile.good()){
@@ -145,7 +162,7 @@ void Input(fstream &inputFile){
         bool boldStatus = false;
         bool printStatus = false;
         char direction = 'Q';
-        int distance;
+        int distance = 0;
 
         //variable to store the index of ","
         unsigned long index = 0;
@@ -213,6 +230,9 @@ void Input(fstream &inputFile){
                     if(command == "B"){
                         boldStatus = true;
                     }
+                    else if(command == "P"){
+                        printStatus = true;
+                    }
                     else{
                         validCommand = false;
                     }
@@ -225,6 +245,8 @@ void Input(fstream &inputFile){
                         validCommand = false;
                     }
                     break;
+                default: cout << "Error!" << endl;
+                         break;
             }
 
         }
@@ -238,8 +260,25 @@ void Input(fstream &inputFile){
         //INCOMPLETE CODE BITCH
         switch(direction){
             case 'N':
+                NorthDraw(temp, penStatus, boldStatus, distance);
+                break;
+            case 'S':
+                SouthDraw(temp, penStatus, boldStatus, distance);
+                break;
+            case 'E':
+                EastDraw(temp, penStatus, boldStatus, distance);
+                break;
+            case 'W':
+                WestDraw(temp, penStatus, boldStatus, distance);
                 break;
             default: break;
+        }
+
+        //make changes to the output file based on the changes to the linked list
+        OutputTranslate(outputFile, head);
+
+        if(printStatus){
+            printGrid(head);
         }
 
     }
@@ -247,3 +286,189 @@ void Input(fstream &inputFile){
 
     inputFile.close();
 }
+
+void OutputTranslate(fstream &outputFile, node *head){
+    node *head_ref = head;
+    node *head_down = head;
+
+    //open the outputfile
+    outputFile.open("paint.txt", ios :: in | ios :: out );
+
+    //for each row
+    for(int row = 0; row < 50; row++){
+        //and for each column
+        for(int column = 0; column < 50; column++){
+            char c = head_ref->symbol;
+            outputFile << c;
+        }
+        //assign head_ref to head_down
+        head_ref = head_down->down;
+        //move head_down a step down
+        head_down = head_down->down;
+        //go to newline
+        cout << endl;
+    }
+
+    //close the file
+    outputFile.close();
+
+}
+
+void NorthDraw(node *&head_ref, bool penStatus, bool boldStatus, int distance){
+    node *temp = head_ref;
+
+    //check for out of bounds
+    for(int i = 0; i < distance; i++){
+        //if the command causes an out of bounds error, return back to the input function
+        if(temp->up == nullptr && (i < distance)){
+            cout << "out of bounds" << endl;
+            return;
+        }
+        //otherwise keep going up
+        temp = temp->up;
+    }
+
+    //assign temp to head once again
+    temp = head_ref;
+
+    //loop for the distance
+    for(int i = 0; i < distance; i++){
+        //move the pointer up
+        temp = temp->up;
+
+        //check for precedence
+        if(temp->symbol == '#'){
+            continue;
+        }
+
+        if(penStatus && boldStatus){
+            temp->symbol = '#';
+        }
+        else if(penStatus){
+            temp->symbol = '*';
+        }
+    }
+
+    //assign head a new position from which we will resume the next command
+    head_ref = temp;
+
+}
+
+void SouthDraw(node *&head_ref, bool penStatus, bool boldStatus, int distance){
+    node *temp = head_ref;
+
+    //check for out of bounds
+    for(int i = 0; i < distance; i++){
+        //if the command causes an out of bounds error, return back to the input function
+        if(temp->down == nullptr && (i < distance)){
+            cout << "out of bounds" << endl;
+            return;
+        }
+        //otherwise keep going down
+        temp = temp->down;
+    }
+
+    //assign temp to head once again
+    temp = head_ref;
+
+    //loop for the distance
+    for(int i = 0; i < distance; i++){
+        //move the pointer left
+        temp = temp->down;
+
+        //check for precedence
+        if(temp->symbol == '#'){
+            continue;
+        }
+
+        if(penStatus && boldStatus){
+            temp->symbol = '#';
+        }
+        else if(penStatus){
+            temp->symbol = '*';
+        }
+    }
+
+    //assign head a new position from which we will resume the next command
+    head_ref = temp;
+}
+
+void EastDraw(node *&head_ref, bool penStatus, bool boldStatus, int distance){
+    node *temp = head_ref;
+
+    //check for out of bounds
+    for(int i = 0; i < distance; i++){
+        //if the command causes an out of bounds error, return back to the input function
+        if(temp->right == nullptr && (i < distance)){
+            cout << "out of bounds" << endl;
+            return;
+        }
+        //otherwise keep going right
+        temp = temp->right;
+    }
+
+    //assign temp to head once again
+    temp = head_ref;
+
+    //loop for the distance
+    for(int i = 0; i < distance; i++){
+        //move the pointer right
+        temp = temp->right;
+
+        //check for precedence
+        if(temp->symbol == '#'){
+            continue;
+        }
+
+        if(penStatus && boldStatus){
+            temp->symbol = '#';
+        }
+        else if(penStatus){
+            temp->symbol = '*';
+        }
+    }
+
+    //assign head a new position from which we will resume the next command
+    head_ref = temp;
+}
+
+void WestDraw(node *&head_ref, bool penStatus, bool boldStatus, int distance){
+    node *temp = head_ref;
+
+    //check for out of bounds
+    for(int i = 0; i < distance; i++){
+        //if the command causes an out of bounds error, return back to the input function
+        if(temp->left == nullptr && (i < distance)){
+            cout << "out of bounds" << endl;
+            return;
+        }
+        //otherwise keep going left
+        temp = temp->left;
+    }
+
+    //assign temp to head once again
+    temp = head_ref;
+
+    //loop for the distance
+    for(int i = 0; i < distance; i++){
+        //move the pointer left
+        temp = temp->left;
+
+        //check for precedence
+        if(temp->symbol == '#'){
+            continue;
+        }
+
+        if(penStatus && boldStatus){
+            temp->symbol = '#';
+        }
+        else if(penStatus){
+            temp->symbol = '*';
+        }
+    }
+
+    //assign head a new position from which we will resume the next command
+    head_ref = temp;
+}
+
+
