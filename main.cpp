@@ -1,10 +1,13 @@
+//Shreyas Raj Singh sxs170100 CS 1337.007 Project 3
 #include <iostream>
 #include <fstream>
 
 using namespace std;
 
+//basic outline of the nodes in the linked list
 struct node{
 
+    //store the symbol in the node
     char symbol;
 
     //connecting nodes to create the structure
@@ -17,7 +20,6 @@ struct node{
 
 //function to create the grid on which the user will draw
 void createGrid(node *&);
-
 //function to print the grid!
 void printGrid(node *);
 //function to delete the grid
@@ -49,6 +51,9 @@ int main(){
 
     //take in input
     Input(inputFile, head);
+
+    //delete the linked list structure
+    deleteGrid(head);
 
     return 0;
 
@@ -82,7 +87,7 @@ void createGrid(node *&head){
         node *newNode1 = new node;
         node *temp2 = newNode1;
         //and the columns on each row
-            for(int i = 0; i < 50 ; i++){
+            for(int j = 0; j < 50 ; j++){
                 temp2->symbol = ' ';
                 //create new node
                 node *newNode2 = new node;
@@ -123,7 +128,8 @@ void printGrid(node *head){
             cout << head->symbol;
             head = head->right;
         }
-        //and a newline
+        //and a newline(s)
+        cout << endl;
         cout << endl;
         cout << endl;
     }
@@ -132,6 +138,31 @@ void printGrid(node *head){
 
 void deleteGrid(node *head){
 
+    if(head->down != nullptr){
+        //assign the location of the node under head to a temporary pointer
+        node *temp = head->down;
+        //free the entire row
+        while(head->right != nullptr){
+            head = head->right;
+            node *deleteNode = head->left;
+            free(deleteNode);
+        }
+        //and the last member of the row
+        free(head);
+
+        //call the same function using temp
+        deleteGrid(temp);
+    }
+    else{
+        //delete the last row
+        while(head->right != nullptr){
+            head = head->right;
+            node *deleteNode = head->left;
+            free(deleteNode);
+        }
+        //and the last member of the row
+        free(head);
+    }
 }
 
 void Input(fstream &inputFile, node *head){
@@ -193,10 +224,10 @@ void Input(fstream &inputFile, node *head){
 
             switch(counter){
                 case 1: //check for pen status
-                    if(stoi(command) == 1){
+                    if(command == "1"){
                         penStatus = false;
                     }
-                    else if(stoi(command) == 2){
+                    else if(command == "2"){
                         penStatus = true;
                     }
                     else{
@@ -220,12 +251,20 @@ void Input(fstream &inputFile, node *head){
                         validCommand = false;
                     }
                     break;
-                case 3: //check for distance
-                    distance = stoi(command);
-                    if(distance < 0){
-                        validCommand = false;
+                case 3: {//check for distance
+                    //make sure distance is positive
+                    int i = 0;
+                    while (i < command.length()) {
+                        if (!isdigit(command[i])) {
+                            validCommand = false;
+                            break;
+                        }
+                        i++;
                     }
+                    if(validCommand)
+                        distance = stoi(command);
                     break;
+                }
                 case 4: //check for bold status
                     if(command == "B"){
                         boldStatus = true;
@@ -256,8 +295,7 @@ void Input(fstream &inputFile, node *head){
             continue;
         }
 
-        //after all the commands are acquired call the function for the respective direction
-        //INCOMPLETE CODE BITCH
+        //After all the commands are acquired call the function for the respective direction
         switch(direction){
             case 'N':
                 NorthDraw(temp, penStatus, boldStatus, distance);
@@ -277,13 +315,14 @@ void Input(fstream &inputFile, node *head){
         //make changes to the output file based on the changes to the linked list
         OutputTranslate(outputFile, head);
 
+        //print if ordered
         if(printStatus){
             printGrid(head);
         }
 
     }
 
-
+    //close the input file
     inputFile.close();
 }
 
@@ -298,17 +337,17 @@ void OutputTranslate(fstream &outputFile, node *head){
     for(int row = 0; row < 50; row++){
         //and for each column
         for(int column = 0; column < 50; column++){
-            char c = head_ref->symbol;
-            outputFile << c;
+            outputFile << head_ref->symbol;
+            head_ref = head_ref->right;
         }
         //assign head_ref to head_down
         head_ref = head_down->down;
         //move head_down a step down
         head_down = head_down->down;
         //go to newline
-        cout << endl;
+        if(row != 49)
+            outputFile << endl;
     }
-
     //close the file
     outputFile.close();
 
