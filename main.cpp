@@ -42,6 +42,8 @@ int main(){
 
     //create a file input object
     fstream inputFile;
+    //create output fstream object
+    fstream outputFile;
 
     //create the head pointer and assign it to nullptr
     node *head = new node;
@@ -51,6 +53,13 @@ int main(){
 
     //take in input
     Input(inputFile, head);
+
+    //open the outputfile
+    outputFile.open("paint.txt", ios :: in | ios :: out );
+    //make changes to the output file based on the changes to the linked list
+    OutputTranslate(outputFile, head);
+    //close the file
+    outputFile.close();
 
     //delete the linked list structure
     deleteGrid(head);
@@ -108,6 +117,7 @@ void createGrid(node *&head){
 
 void printGrid(node *head){
 
+    //while we're not at the last row
     if(head->down != nullptr){
         //assign the location of the node under head to a temporary pointer
         node *temp = head->down;
@@ -138,6 +148,7 @@ void printGrid(node *head){
 
 void deleteGrid(node *head){
 
+    //while we're not at the last row
     if(head->down != nullptr){
         //assign the location of the node under head to a temporary pointer
         node *temp = head->down;
@@ -171,8 +182,7 @@ void Input(fstream &inputFile, node *head){
     //open the command file
     inputFile.open("commands.txt");
 
-    //create output fstream object
-    fstream outputFile;
+
 
     //check for the proper opening of the file
     if(!inputFile.good()){
@@ -294,6 +304,10 @@ void Input(fstream &inputFile, node *head){
             cout << "invalid command" << endl;
             continue;
         }
+        else if(!penStatus && boldStatus){
+            cout << "invalid command" << endl;
+            continue;
+        }
 
         //After all the commands are acquired call the function for the respective direction
         switch(direction){
@@ -312,9 +326,6 @@ void Input(fstream &inputFile, node *head){
             default: break;
         }
 
-        //make changes to the output file based on the changes to the linked list
-        OutputTranslate(outputFile, head);
-
         //print if ordered
         if(printStatus){
             printGrid(head);
@@ -326,31 +337,30 @@ void Input(fstream &inputFile, node *head){
     inputFile.close();
 }
 
+
 void OutputTranslate(fstream &outputFile, node *head){
-    node *head_ref = head;
-    node *head_down = head;
+    //while we're not in the last row
+    if(head->down != nullptr){
+        //assign the position of head->down to a temp pointer
+        node *head_down = head->down;
 
-    //open the outputfile
-    outputFile.open("paint.txt", ios :: in | ios :: out );
-
-    //for each row
-    for(int row = 0; row < 50; row++){
-        //and for each column
-        for(int column = 0; column < 50; column++){
-            outputFile << head_ref->symbol;
-            head_ref = head_ref->right;
+        //for every column on the row
+        for(int i = 0; i < 50; i++){
+            outputFile << head->symbol;
+            head = head->right;
         }
-        //assign head_ref to head_down
-        head_ref = head_down->down;
-        //move head_down a step down
-        head_down = head_down->down;
-        //go to newline
-        if(row != 49)
-            outputFile << endl;
+        //print out a newline
+        outputFile << endl;
+        //call the function again with head_down as the argument
+        OutputTranslate(outputFile, head_down);
     }
-    //close the file
-    outputFile.close();
-
+    else{
+        //for every column on the last row
+        for(int i = 0; i < 50; i++){
+            outputFile << head->symbol;
+            head = head->right;
+        }
+    }
 }
 
 void NorthDraw(node *&head_ref, bool penStatus, bool boldStatus, int distance){
