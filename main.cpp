@@ -30,11 +30,11 @@ void Input(fstream &, node *);
 void OutputTranslate(fstream &, node *);
 //function to draw north
 void NorthDraw(node *&, bool, bool, int);
-//function to draw north
+//function to draw south
 void SouthDraw(node *&, bool, bool, int);
 //function to draw east
 void EastDraw(node *&, bool, bool, int);
-//function to draw east
+//function to draw west
 void WestDraw(node *&, bool, bool, int);
 
 
