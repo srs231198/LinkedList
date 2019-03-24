@@ -123,18 +123,19 @@ void printGrid(node *head){
         node *temp = head->down;
         //print out the row
         while(head->right != nullptr){
+            //output the node's value and move the pointer
             cout << head->symbol;
             head = head->right;
         }
         //and a newline
         cout << endl;
-
         //call the same function using temp
         printGrid(temp);
     }
     else{
         //print out the last row
         while(head->right != nullptr){
+            //output the node's value and move the pointer
             cout << head->symbol;
             head = head->right;
         }
@@ -154,8 +155,11 @@ void deleteGrid(node *head){
         node *temp = head->down;
         //free the entire row
         while(head->right != nullptr){
+            //move the pointer to the right
             head = head->right;
+            //assign a pointer to the previous node
             node *deleteNode = head->left;
+            //free the previous node
             free(deleteNode);
         }
         //and the last member of the row
@@ -167,8 +171,11 @@ void deleteGrid(node *head){
     else{
         //delete the last row
         while(head->right != nullptr){
+            //move the pointer to the right
             head = head->right;
+            //assign a pointer to the previous node
             node *deleteNode = head->left;
+            //free the previous node
             free(deleteNode);
         }
         //and the last member of the row
@@ -346,6 +353,7 @@ void OutputTranslate(fstream &outputFile, node *head){
 
         //for every column on the row
         for(int i = 0; i < 50; i++){
+            //output the node's value and move the pointer
             outputFile << head->symbol;
             head = head->right;
         }
@@ -357,6 +365,7 @@ void OutputTranslate(fstream &outputFile, node *head){
     else{
         //for every column on the last row
         for(int i = 0; i < 50; i++){
+            //output the node's value and move the pointer
             outputFile << head->symbol;
             head = head->right;
         }
@@ -519,5 +528,3 @@ void WestDraw(node *&head_ref, bool penStatus, bool boldStatus, int distance){
     //assign head a new position from which we will resume the next command
     head_ref = temp;
 }
-
-
